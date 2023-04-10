@@ -1,5 +1,5 @@
 pipeline{
-agent 
+agent {label 'docker'}
 stage('depoly on dockerhost'){
             steps{
                 sh "docker stop firstdeploy"
@@ -7,3 +7,4 @@ stage('depoly on dockerhost'){
                 sh "docker run -d --name firstdeploy -p 8082:8080 hemaj/ubuntu:$BUILD_NUMBER"
             }
            }
+}
