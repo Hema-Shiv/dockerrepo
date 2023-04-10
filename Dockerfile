@@ -1,4 +1,4 @@
-FROM maven:3.8.4-jdk-8
+FROM maven:3.8.4-jdk-8 AS build
 
 WORKDIR /app
 
@@ -10,5 +10,14 @@ COPY src ./src
 
 RUN mvn package
 
-CMD ["java", "-jar", "/app/target/myapp.jar"]
+FROM tomcat:8.0-alpine
+
+WORKDIR /usr/local/tomcat/webapps
+
+COPY --from=build  /app/target/MyWebApp.war .
+
+EXPOSE 8080
+
+CMD ["catalina.sh", "run"]
+
 
