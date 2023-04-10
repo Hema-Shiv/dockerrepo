@@ -1,12 +1,12 @@
 pipeline{
     agent {label 'docker'}
     environment {
-    DOCKERHUB_CREDENTIALS = CREDENTIALS('dockerhub')
+    DOCKERHUB_CREDENTIALS = credentials('dockerhub')
     }
     stages{
        stage('Git Checkout Stage'){
             steps{
-                git branch: 'main', credentialsId: 'github', url: 'https://github.com/Hema-Shiv/dockerrepo.git'
+               checkout scm
             }
          }        
        stage('Build docker image'){
@@ -21,12 +21,12 @@ pipeline{
             }
         stage('push image'){
             steps{
-                sh 'docker push hemaj/ubuntu:$BUILD_NUMBER'
+                sh "docker push hemaj/ubuntu:$BUILD_NUMBER"
             }   
         }
        stage('depoly on dockerhost'){
             steps{
-                sh 'docker run -d --name firstdeploy -p 8080:8080 hemaj/ubuntu:$BUILD_NUMBER '
+                sh "docker run -d --name firstdeploy -p 8080:8080 hemaj/ubuntu:$BUILD_NUMBER"
             }
        }
     }
