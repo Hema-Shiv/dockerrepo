@@ -1,22 +1,33 @@
 pipeline{
-    agent {label 'sonarqube'}
+    agent {label 'docker'}
+    environment {
+    DOCKERHUB_CREDENTIALS = CREDENTIALS('dockerhub')
+    }
     stages{
        stage('Git Checkout Stage'){
             steps{
-                git branch: 'main', credentialsId: 'github', url: 'https://github.com/Hema-Shiv/Sonarexample.git'
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/Hema-Shiv/dockerrepo.git'
             }
          }        
-       stage('Build Stage'){
+       stage('Build docker image'){
             steps{
-                sh 'mvn clean install'
+                sh 'docker build -t hemaj/ubuntu:$BUILD_NUMBER . '
             }
          }
-        stage('SonarQube Analysis Stage') {
+        stage('login to dockerhub') {
             steps{
-                withSonarQubeEnv('sonarqube') { 
-                    sh "mvn clean verify sonar:sonar -Dsonar.projectKey=sonar-test"
+             sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
                 }
             }
+        stage('push image'){
+            steps{
+                sh 'docker push hemaj/ubuntu:$BUILD_NUMBER'
+            }   
         }
+       stage('depoly on dockerhost'){
+            steps{
+                sh 'docker run -d --name firstdeploy -p 8080:8080 hemaj/ubuntu:$BUILD_NUMBER '
+            }
+       }
     }
 }
