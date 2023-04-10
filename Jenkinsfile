@@ -26,6 +26,8 @@ pipeline{
         }
        stage('depoly on dockerhost'){
             steps{
+                sh "docker stop firstdeploy"
+                sh "docker rm firstdeploy"
                 sh "docker run -d --name firstdeploy -p 8082:8080 hemaj/ubuntu:$BUILD_NUMBER"
             }
        }
